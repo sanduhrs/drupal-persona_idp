@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Implements hook_requirements().
+ */
+function persona_idp_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    // TODO:
+    // * Check for SSL support
+    // * Check for domain is not a subdomain
+    // * Check for delegate authority is not a subdomain
+    // * Check for existance of public / private keys
+  }
+  return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function persona_idp_uninstall() {
+  variable_del('persona_idp_authority');
+  variable_del('persona_idp_delegate');
+  variable_del('persona_idp_keypath');
+  variable_del('persona_idp_signature_service');
+}

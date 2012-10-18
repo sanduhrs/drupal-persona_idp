@@ -1,0 +1,38 @@
+INSTALL
+-------
+
+* Enable the module
+  drush en persona_idp -y
+
+Primary
+=======
+
+* Download and install browserid-certifier from https://github.com/mozilla/browserid-certifier
+  git clone https://github.com/mozilla/browserid-certifier.git
+
+* Follow the README at least from
+  - Installation to
+    [...]
+  - Running Certifier
+
+* Tell Drupal about the path to your newly generated public key
+  drush vset persona_idp_keypath '/var/private/keypair'
+
+* Tell Drupal about the path Signature Service
+  drush vset persona_idp_signature_service 'http://127.0.0.1:9999/cert_key'
+
+- OR -
+
+Delegation
+==========
+
+* Set the authority
+  drush vset persona_idp_authority 'persona.org'
+
+* Enable delegation
+  drush vset persona_idp_delegate 1
+
+  variable_del('persona_idp_authority');
+  variable_del('persona_idp_delegate');
+  variable_del('persona_idp_keypath');
+  variable_del('persona_idp_signature_service');

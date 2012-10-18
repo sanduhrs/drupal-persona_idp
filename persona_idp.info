@@ -1,0 +1,5 @@
+name = Persona Identity Provider
+description = Persona Identity Provider
+core = 7.x
+
+dependencies[] = well_known

@@ -1,0 +1,153 @@
+<?php
+
+define('PERSONA_IDP_PRODUCTION', 'https://login.persona.org/');
+define('PERSONA_IDP_STAGING', 'https://login.anosrep.org/');
+define('PERSONA_IDP_DEVELOPMENT', 'https://login.dev.anosrep.org/');
+
+/**
+ * Implements hook_init().
+ */
+function persona_idp_init() {
+  drupal_add_js('https://login.dev.anosrep.org/include.js', 'external');
+}
+
+/**
+ * Implements hook_menu().
+ */
+function persona_idp_menu() {
+  $items = array();
+  $items['.well-known/browserid'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'persona_idp_switch',
+    'access callback' => TRUE,
+    'file' => 'persona_idp.pages.inc',
+  );
+  $items['persona-idp/authenticate'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'persona_idp_authentication',
+    'access callback' => TRUE,
+    'file' => 'persona_idp.pages.inc',
+  );
+  $items['persona-idp/provision'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'persona_idp_provisioning',
+    'access callback' => TRUE,
+    'file' => 'persona_idp.pages.inc',
+  );
+  $items['persona-idp/cert-key'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'persona_idp_api_cert_key',
+    'access callback' => TRUE,
+    'file' => 'persona_idp.pages.inc',
+  );
+  $items['persona-idp/login'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'persona_idp_api_login',
+    'access callback' => TRUE,
+    'file' => 'persona_idp.pages.inc',
+  );
+  $items['persona-idp/whoami'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'persona_idp_api_whoami',
+    'access callback' => TRUE,
+    'file' => 'persona_idp.pages.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_xrd_TYPE_alter().
+ */
+function persona_idp_xrd_host_meta_alter($xrd) {
+  // Browserid has been renamed to Persona
+  // but browserid is stilll used in all over the place,
+  // so just to be shure:
+  $xrd->links[] = array(
+    'rel' => 'browserid',
+    'href' => '/.well-known/browserid',
+  );
+  $xrd->links[] = array(
+    'rel' => 'persona',
+    'href' => '/.well-known/browserid',
+  );
+  // probably to become:
+  // $xrd->links[] = array(
+  //   'rel' => 'persona',
+  //   'href' => '/.well-known/persona',
+  // );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function persona_idp_form_user_login_alter(&$form, &$form_state, $form_id) {
+  // if (isset($form_state['build_info']['args'][0]) &&
+  //     in_array('persona_idp', $form_state['build_info']['args'][0])) {
+  //   drupal_add_js(drupal_get_path('module', 'persona_idp') . '/js/persona_idp_authentication.js');
+  //   $form['actions']['cancel'] = array(
+  //     '#type' => 'submit',
+  //     '#value' => t('Cancel'),
+  //   );
+  //   // $form['#action'] = url('persona-idp/login');
+  // }
+}
+
+function persona_idp_user_login(&$edit, $account) {
+  // error_log('aaaaaaaaaaaaaaaaaaaaaaaaa:::::::::::::::::::::::::::');
+  // if (arg(0) === 'persona-idp') {
+  //   $edit['redirect'] = 'persona-idp/login';
+  // }
+}
+
+/**
+ * Form builder; the main user login form.
+ *
+ * @ingroup forms
+ */
+function persona_idp_user_login_form($form, &$form_state) {
+  global $user;
+
+  // If we are already logged on, go to the user page instead.
+  if ($user->uid) {
+    drupal_goto('user/' . $user->uid);
+  }
+
+  // Display login form:
+  $form['name'] = array('#type' => 'textfield',
+    '#title' => t('Username'),
+    '#size' => 60,
+    '#maxlength' => USERNAME_MAX_LENGTH,
+    '#required' => TRUE,
+  );
+
+  $form['name']['#description'] = t('Enter your @s username.', array('@s' => variable_get('site_name', 'Drupal')));
+  $form['pass'] = array('#type' => 'password',
+    '#title' => t('Password'),
+    '#description' => t('Enter the password that accompanies your username.'),
+    '#required' => TRUE,
+  );
+  $form['#validate'] = user_login_default_validators();
+  // dsm($form['#validate']);
+  // $form['#validate'][] = 'persona_idp_user_login_form_validate';
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Log in'));
+  $form['actions']['cancel'] = array('#type' => 'submit', '#value' => t('Cancel'));
+
+  return $form;
+}
+
+function persona_idp_user_login_form_validate($form, &$form_state) {
+  // dsm(__FUNCTION__);
+  // dsm($form);
+  // dsm($form_state);
+}
+
+function persona_idp_user_login_form_submit($form, &$form_state) {
+//   $uid = user_authenticate($form_state['values']['name'], $form_state['values']['pass']);
+//   if (isset($uid)) {
+// // dsm(__FUNCTION__ . '::' . $uid);
+//     global $user;
+//     $user = user_load($uid);
+//     dsm($user);
+//   }  
+}
